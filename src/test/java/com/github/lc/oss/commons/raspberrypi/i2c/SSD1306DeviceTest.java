@@ -187,13 +187,13 @@ public class SSD1306DeviceTest extends AbstractI2cTest {
         try {
             dev.setContrast(-1);
         } catch (IllegalArgumentException ex) {
-            Assertions.assertEquals("Constract must be between 0 and 255 includsive", ex.getMessage());
+            Assertions.assertEquals("Constract must be between 0 and 255 inclusive", ex.getMessage());
         }
 
         try {
             dev.setContrast(256);
         } catch (IllegalArgumentException ex) {
-            Assertions.assertEquals("Constract must be between 0 and 255 includsive", ex.getMessage());
+            Assertions.assertEquals("Constract must be between 0 and 255 inclusive", ex.getMessage());
         }
 
         dev.close();
