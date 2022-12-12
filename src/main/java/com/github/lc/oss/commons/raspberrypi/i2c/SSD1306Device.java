@@ -258,7 +258,7 @@ public class SSD1306Device extends I2CDevice implements SSD1306Display {
     @Override
     public void setContrast(int contrast) {
         if (contrast < 0 || contrast > 255) {
-            throw new IllegalArgumentException("Constract must be between 0 and 255 includsive");
+            throw new IllegalArgumentException("Constract must be between 0 and 255 inclusive");
         }
 
         this.command(SSD1306Device.SET_CONTRAST);
