@@ -1,5 +1,8 @@
 package com.github.lc.oss.commons.raspberrypi.i2c;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
+
 import com.pi4j.io.i2c.I2CRegister;
 
 /**
@@ -12,8 +15,56 @@ import com.pi4j.io.i2c.I2CRegister;
  */
 public class SSD1306Device extends I2CDevice implements SSD1306Display {
     /**
-     * Utility function to set a specific pixel in a buffer to on/off.
-     *
+     * Converts a {@linkplain BufferedImage} to a pixel map usable by an SSD1360
+     * display (Paged addressing). <br/>
+     * <br/>
+     * Allocates a new byte[] to hold the data. To avoid memory allocations call
+     * {@linkplain SSD1306Device#imageToPixels(byte[], BufferedImage)} with a
+     * preallocated byte[] of the proper size. (byte array size = width * height /
+     * 8)
+     */
+    public static byte[] pixelsFromImage(BufferedImage image) {
+        byte[] pixels = new byte[image.getWidth() * image.getHeight() / 8];
+        SSD1306Device.imageToPixels(pixels, image);
+        return pixels;
+    }
+
+    /**
+     * Converts a {@linkplain BufferedImage} to a pixel map usable by an SSD1360
+     * display (Paged addressing).
+     */
+    public static void imageToPixels(byte[] pixels, BufferedImage image) {
+        SSD1306Device.rasterToPixels(pixels, image.getData());
+    }
+
+    /**
+     * Converts a {@linkplain Raster} to a pixel map usable by an SSD1360 display
+     * (Paged addressing).
+     */
+    public static void rasterToPixels(byte[] pixels, Raster raster) {
+        final int width = raster.getWidth();
+        final int height = raster.getHeight();
+
+        if (width * height / 8 != pixels.length) {
+            throw new IllegalArgumentException("pixel buffer size does not match raster size");
+        }
+
+        int pixel;
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                pixel = raster.getSample(x, y, 0);
+                if (pixel != 0) {
+                    pixels[x + y / 8 * width] |= 1 << (y & 7);
+                } else {
+                    pixels[x + y / 8 * width] &= ~(1 << (y & 7));
+                }
+            }
+        }
+    }
+
+    /**
+     * Utility function to set a specific pixel in a buffer to on/off. <br />
+     * <br />
      * Coordinates are zero-indexed
      */
     public static void setPixel(byte[] pixels, int x, int y, boolean on) {
@@ -70,11 +121,11 @@ public class SSD1306Device extends I2CDevice implements SSD1306Display {
      */
     public static final byte ALL_ZEROS = 0;
     /**
-     * Other (non 3.3v) VCC
+     * Other (7v+) VCC
      */
     public static final int EXTERNAL_VCC = 0x01;
     /**
-     * 3.3v VCC
+     * 3.3v / 5v VCC
      */
     public static final int SWITCHC_AP_VCC = 0x02;
     /**
@@ -221,9 +272,9 @@ public class SSD1306Device extends I2CDevice implements SSD1306Display {
     }
 
     @Override
-    public void display(byte[] data) {
-        if (data.length != this.getBufferSize()) {
-            throw new IllegalArgumentException(String.format("Data length must match display buffer size of %d bytes", this.getBufferSize()));
+    public void display(byte[] buffer) {
+        if (buffer.length != this.getBufferSize()) {
+            throw new IllegalArgumentException(String.format("Buffer length must match display buffer size of %d bytes", this.getBufferSize()));
         }
 
         this.command(SSD1306Device.COLUMN_ADDR);
@@ -232,7 +283,7 @@ public class SSD1306Device extends I2CDevice implements SSD1306Display {
         this.command(SSD1306Device.PAGE_ADDR);
         this.command(0); // Page start address. (0 = reset)
         this.command(this.pages - 1); // Page end address.
-        this.write(data);
+        this.write(buffer);
     }
 
     @Override

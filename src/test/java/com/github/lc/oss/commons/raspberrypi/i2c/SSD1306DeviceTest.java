@@ -1,5 +1,8 @@
 package com.github.lc.oss.commons.raspberrypi.i2c;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -240,7 +243,7 @@ public class SSD1306DeviceTest extends AbstractI2cTest {
             dev.display(new byte[1]);
             Assertions.fail("Expected exception");
         } catch (IllegalArgumentException ex) {
-            Assertions.assertEquals("Data length must match display buffer size of 512 bytes", ex.getMessage());
+            Assertions.assertEquals("Buffer length must match display buffer size of 512 bytes", ex.getMessage());
         }
 
         dev.close();
@@ -366,5 +369,34 @@ public class SSD1306DeviceTest extends AbstractI2cTest {
         Assertions.assertEquals(0x01, pixels[0]);
         SSD1306Device.setPixel(pixels, 0, 0, false);
         Assertions.assertEquals(0x00, pixels[0]);
+    }
+
+    @Test
+    public void test_rasterToPixels_error() {
+        BufferedImage img = new BufferedImage(128, 32, BufferedImage.TYPE_BYTE_BINARY);
+        try {
+            SSD1306Device.rasterToPixels(new byte[1], img.getData());
+            Assertions.fail("Expected exception");
+        } catch (IllegalArgumentException ex) {
+            Assertions.assertEquals("pixel buffer size does not match raster size", ex.getMessage());
+        }
+    }
+
+    @Test
+    public void test_pixelsFromImage() {
+        BufferedImage img = new BufferedImage(128, 32, BufferedImage.TYPE_BYTE_BINARY);
+        byte[] pixels = SSD1306Device.pixelsFromImage(img);
+        Assertions.assertEquals(512, pixels.length);
+        for (byte b : pixels) {
+            Assertions.assertEquals(SSD1306Device.ALL_ZEROS, b);
+        }
+
+        img.getGraphics().setColor(Color.WHITE);
+        img.getGraphics().fillRect(0, 0, 128, 32);
+        pixels = SSD1306Device.pixelsFromImage(img);
+        Assertions.assertEquals(512, pixels.length);
+        for (byte b : pixels) {
+            Assertions.assertEquals(SSD1306Device.ALL_ONES, b);
+        }
     }
 }

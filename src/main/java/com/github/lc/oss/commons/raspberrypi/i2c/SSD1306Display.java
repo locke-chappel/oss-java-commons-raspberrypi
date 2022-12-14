@@ -13,10 +13,10 @@ public interface SSD1306Display extends Device {
 
     /**
      * Write the given data to the display. 1-bit turns a pixel on, 0-bit turns the
-     * pixel off.
-     *
-     * The array length in bytes is given by {@linkplain #getBufferSize()}.
-     *
+     * pixel off. <br />
+     * <br />
+     * The array length in bytes is given by {@linkplain #getBufferSize()}. <br />
+     * <br />
      * This implementation uses Paged addressing mode (as opposed to Horizontal
      * mode).
      */
