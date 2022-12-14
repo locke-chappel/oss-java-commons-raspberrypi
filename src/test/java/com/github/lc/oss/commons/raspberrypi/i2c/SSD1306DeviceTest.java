@@ -250,6 +250,44 @@ public class SSD1306DeviceTest extends AbstractI2cTest {
     }
 
     @Test
+    public void test_scrollHorizontal_left() {
+        this.expectDevice();
+        I2CRegister reg1 = Mockito.mock(I2CRegister.class);
+        Mockito.when(this.i2c.register(SSD1306Device.COM_REG_ADDR)).thenReturn(reg1);
+
+        SSD1306Device dev = new SSD1306Device("id", 128, 32) {
+            @Override
+            protected Context getContext() {
+                return SSD1306DeviceTest.this.context;
+            }
+        };
+
+        dev.scrollHorizontal(true);
+        dev.stopScroll();
+
+        dev.close();
+    }
+
+    @Test
+    public void test_scrollHorizontal_right() {
+        this.expectDevice();
+        I2CRegister reg1 = Mockito.mock(I2CRegister.class);
+        Mockito.when(this.i2c.register(SSD1306Device.COM_REG_ADDR)).thenReturn(reg1);
+
+        SSD1306Device dev = new SSD1306Device("id", 128, 32) {
+            @Override
+            protected Context getContext() {
+                return SSD1306DeviceTest.this.context;
+            }
+        };
+
+        dev.scrollHorizontal(false);
+        dev.stopScroll();
+
+        dev.close();
+    }
+
+    @Test
     public void test_setPixel_errors() {
         try {
             SSD1306Device.setPixel(null, 0, 0, true);

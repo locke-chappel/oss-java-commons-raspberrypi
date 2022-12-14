@@ -151,8 +151,14 @@ public class SSD1306Device extends I2CDevice implements SSD1306Display {
     protected static final int SET_PRECHARGE = 0xD9;
     protected static final int SET_VCOM_DESEL = 0xDB;
     protected static final int SET_ENTIRE_ON = 0xA4;
-    protected static final int SET_NORM_INV = 0xA6;
+    protected static final int SET_NORMAL = 0xA6;
+    protected static final int SET_INVERTED = 0xA7;
     protected static final int SET_IREF_SELECT = 0xAD;
+
+    protected static final int RIGHT_HORIZONTAL_SCROLL = 0x26;
+    protected static final int LEFT_HORIZONTAL_SCROLL = 0x27;
+    protected static final int ACTIVATE_SCROLL = 0x2F;
+    protected static final int DEACTIVATE_SCROLL = 0x2E;
 
     protected static final int MAX_I2C_DATA_CHUNK = 32; // bytes
 
@@ -262,7 +268,7 @@ public class SSD1306Device extends I2CDevice implements SSD1306Display {
         this.command(SSD1306Device.SET_CONTRAST);
         this.command(0xFF);
         this.command(SSD1306Device.SET_ENTIRE_ON); // output follows RAM contents
-        this.command(SSD1306Device.SET_NORM_INV); // not inverted
+        this.command(SSD1306Device.SET_NORMAL); // not inverted
         this.command(SSD1306Device.SET_IREF_SELECT);
         this.command(0x30); // enable internal IREF during display on
         this.command(SSD1306Device.SET_CHARGE_PUMP);
@@ -306,6 +312,26 @@ public class SSD1306Device extends I2CDevice implements SSD1306Display {
     }
 
     @Override
+    public void scrollHorizontal(boolean toTheLeft) {
+        this.scrollHorizontal(toTheLeft ? SSD1306Device.LEFT_HORIZONTAL_SCROLL : SSD1306Device.RIGHT_HORIZONTAL_SCROLL, 0, this.height - 1);
+    }
+
+    /**
+     * Internal horizontal scroll function, permits custom start/end lines for
+     * scrolling.
+     */
+    protected void scrollHorizontal(int direction, int start, int end) {
+        this.command(direction);
+        this.command(0);
+        this.command(start);
+        this.command(0);
+        this.command(end);
+        this.command(1);
+        this.command(0xFF);
+        this.command(SSD1306Device.ACTIVATE_SCROLL);
+    }
+
+    @Override
     public void setContrast(int contrast) {
         if (contrast < 0 || contrast > 255) {
             throw new IllegalArgumentException("Constract must be between 0 and 255 inclusive");
@@ -317,7 +343,12 @@ public class SSD1306Device extends I2CDevice implements SSD1306Display {
 
     @Override
     public void setInvert(boolean invert) {
-        this.command(SSD1306Device.SET_NORM_INV | (invert ? 0xFF : 0x00));
+        this.command(invert ? SSD1306Device.SET_INVERTED : SSD1306Device.SET_NORMAL);
+    }
+
+    @Override
+    public void stopScroll() {
+        this.command(SSD1306Device.DEACTIVATE_SCROLL);
     }
 
     @Override

@@ -46,4 +46,21 @@ public interface SSD1306Display extends Device {
      * Inverts each pixel (all 0's become 1's and vice versa)
      */
     void setInvert(boolean invert);
+
+    /**
+     * Scrolls the entire image horizontally using hardware functions (i.e. no need
+     * to redraw the image). Limited customizations (e.g. left/right only, no speed
+     * settings). <br/>
+     * <br/>
+     * CAUTION: Make sure to fully write your frame buffer <b>before</b> enabling
+     * scrolling (this also implies <i>disabling</i> scrolling before changing the
+     * frame). If you don't then you will see some image tearing (or maybe that's
+     * what you want...)
+     */
+    void scrollHorizontal(boolean toTheLeft);
+
+    /**
+     * Stops scrolling
+     */
+    void stopScroll();
 }
