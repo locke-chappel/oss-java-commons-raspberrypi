@@ -146,7 +146,6 @@ public class SSD1306Device extends I2CDevice implements SSD1306Display {
     protected static final int SET_CHARGE_PUMP = 0x8D;
     protected static final int SET_MEM_ADDR = 0x20;
     protected static final int SET_SEG_REMAP = 0xA0;
-    protected static final int COMSCANDEC = 0xC8;
     protected static final int SET_COM_PIN_CFG = 0xDA;
     protected static final int SET_COM_OUT_DIR = 0xC0;
     protected static final int SET_PRECHARGE = 0xD9;
