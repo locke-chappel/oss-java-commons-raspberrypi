@@ -12,7 +12,7 @@
     <version>1.0.10</version>
     <name>${project.artifactId}</name>
     <description>A collection of Pi4J based GPIO and I2C device implementations</description>
-    <url>https://github.com/locke-chappel/oss-commons-raspberrypi</url>
+    <url>https://github.com/locke-chappel/oss-java-commons-raspberrypi</url>
 
     <licenses>
         <license>
